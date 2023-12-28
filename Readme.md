@@ -177,18 +177,20 @@ services:
 
 _Record creation_
 
-```bash
+```console
 docker run --rm --network=host dcm4che/dcm4che-tools:5.30.0 storescu -cDCM4CHEE@192.168.1.6:11112 /opt/dcm4che/etc/testdata/dicom
 ```
 
 _console URLs_
 
-```bash
+```console
 http://192.168.1.6:8080/dcm4chee-arc/ui2
 http://192.168.1.6:9990
 http://192.168.1.6:8080/weasis-pacs-connector/weasis?patientID=583295
 
 ```
+
+_log details validation_
 
 ```console
 tail -f /var/local/dcm4chee-arc/wildfly/log/server.log

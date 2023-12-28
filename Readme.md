@@ -1,6 +1,6 @@
 # dcm4che-weasis-integration
 
-_manual pacs connector deployment_
+## manual pacs connector deployment
 
 ```yaml
 ---
@@ -79,9 +79,7 @@ services:
       - /var/local/dcm4chee-arc/storage:/storage
 ```
 
-
-Automatic deployment with weasis connector
-
+## automatic deployment with weasis connector
 
 ```Dockerfile
 FROM dcm4che/dcm4chee-arc-psql:5.30.0
@@ -181,7 +179,7 @@ _Record creation_
 docker run --rm --network=host dcm4che/dcm4che-tools:5.30.0 storescu -cDCM4CHEE@192.168.1.6:11112 /opt/dcm4che/etc/testdata/dicom
 ```
 
-_console URLs_
+_Console URLs_
 
 ```console
 http://192.168.1.6:8080/dcm4chee-arc/ui2
@@ -206,6 +204,7 @@ tail -f /var/local/dcm4chee-arc/wildfly/log/server.log
 2022-06-09 14:03:59,248 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0053: Admin console listening on http://0.0.0.0:9990 and https://0.0.0.0:9993
 
 ```
+
 _Endpoint URLs_
 
 ```console

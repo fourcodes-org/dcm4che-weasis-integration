@@ -190,6 +190,20 @@ http://192.168.1.6:8080/weasis-pacs-connector/weasis?patientID=583295
 
 ```
 
+```console
+tail -f /var/local/dcm4chee-arc/wildfly/log/server.log
+2022-06-09 14:03:58,946 INFO  [org.dcm4che3.net.Connection] (EE-ManagedExecutorService-default-Thread-2) Start TCP Listener on /0.0.0.0:11112
+2022-06-09 14:03:58,946 INFO  [org.dcm4che3.net.Connection] (EE-ManagedExecutorService-default-Thread-1) Start TCP Listener on /0.0.0.0:2575
+2022-06-09 14:03:59,048 INFO  [org.dcm4che3.net.Connection] (EE-ManagedExecutorService-default-Thread-3) Start TCP Listener on /0.0.0.0:12575
+2022-06-09 14:03:59,048 INFO  [org.dcm4che3.net.Connection] (EE-ManagedExecutorService-default-Thread-4) Start TCP Listener on /0.0.0.0:2762
+2022-06-09 14:03:59,211 INFO  [org.jboss.as.server] (ServerService Thread Pool -- 46) WFLYSRV0010: Deployed "dcm4chee-arc-ui2-5.31.2-secure.war" (runtime-name : "dcm4chee-arc-ui2-5.31.2-secure.war")
+2022-06-09 14:03:59,211 INFO  [org.jboss.as.server] (ServerService Thread Pool -- 46) WFLYSRV0010: Deployed "dcm4chee-arc-ear-5.31.2-psql-secure.ear" (runtime-name : "dcm4chee-arc-ear-5.31.2-psql-secure.ear")
+2022-06-09 14:03:59,238 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0212: Resuming server
+2022-06-09 14:03:59,246 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Full 27.0.1.Final (WildFly Core 18.1.1.Final) started in 10685ms - Started 2819 of 3031 services (446 services are lazy, passive or on-demand) - Server configuration file in use: dcm4chee-arc-oidc.xml
+2022-06-09 14:03:59,248 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0062: Http management interface listening on http://0.0.0.0:9990/management and https://0.0.0.0:9993/management
+2022-06-09 14:03:59,248 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0053: Admin console listening on http://0.0.0.0:9990 and https://0.0.0.0:9993
+
+```
 _Endpoint URLs_
 
 ```console

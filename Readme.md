@@ -1,6 +1,7 @@
 # dcm4che-weasis-integration
 
 _manual pacs connector deployment_
+
 ```yaml
 ---
 version: "3"
@@ -79,7 +80,24 @@ services:
 ```
 
 
-deployment with weasis connector
+Automatic deployment with weasis connector
+
+
+```Dockerfile
+FROM dcm4che/dcm4chee-arc-psql:5.30.0
+COPY weasis-pacs-connector.war /docker-entrypoint.d/deployments
+COPY weasis.war /docker-entrypoint.d/weasis.war
+```
+
+_Build command_
+
+```bash
+docker build -t jjino/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0
+docker push jjino/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0
+```
+
+
+_deployment_
 
 ```yml
 ---
@@ -125,7 +143,7 @@ services:
           cpus: '1'
           memory: 512M
   arc:
-    image: docker.io/library/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0  # dcm4che/dcm4chee-arc-psql:5.30.0
+    image: docker.io/library/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0
     container_name: arc
     ports:
       - "8080:8080"
@@ -146,7 +164,6 @@ services:
       WILDFLY_WAIT_FOR: ldap:389 db:5432
       WILDFLY_EXECUTER_MAX_THREADS: 200
       WILDFLY_CHOWN: /storage
-      # JAVA_OPTS: -Xms512m -Xmx2g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16M  -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Duser.language=en -Duser.region=US -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=30000 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Djava.security.egd=file:/dev/urandom -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.host=0.0.0.0
       JAVA_OPTS: -Xms512m -Xmx2g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16M -Djboss.tx.node.id=arc -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true -agentlib:jdwp=transport=dt_socket,address=*:8787,server=y,suspend=n
     depends_on:
       - ldap
@@ -157,3 +174,9 @@ services:
       - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
       - /var/local/dcm4chee-arc/storage:/storage
 ````
+
+## Documentations
+
+1. [weasis docs](https://github.com/nroduit/weasis-pacs-connector#launch-weasis-with-other-parameters)
+2. [dcm4che docker preparation docs](https://github.com/dcm4che-dockerfiles/dcm4chee-arc-psql#deploy-additional-applications)
+3. [dcm4che-arc-light docs](https://github.com/dcm4che/dcm4chee-arc-light/wiki/Get-Started-Tutorials)

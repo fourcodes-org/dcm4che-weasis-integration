@@ -1,11 +1,15 @@
----
 version: "3"
 services:
   ldap:
-    image: dcm4che/slapd-dcm4chee:2.6.3-30.0
-    container_name: ldap
+    image: dcm4che/slapd-dcm4chee:2.6.5-31.2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
     ports:
       - "389:389"
+    environment:
+      STORAGE_DIR: /storage/fs1
     volumes:
       - /var/local/dcm4chee-arc/ldap:/var/lib/openldap/openldap-data
       - /var/local/dcm4chee-arc/slapd.d:/etc/openldap/slapd.d
@@ -16,18 +20,17 @@ services:
           memory: 1024M
         reservations:
           cpus: '1'
-          memory: 512M
+          memory: 512M   
   db:
-    image: dcm4che/postgres-dcm4chee:15.2-30
-    container_name: db
-    ports:
-      - "5432:5432"
+    image: dcm4che/postgres-dcm4chee:15.4-31
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
     environment:
       POSTGRES_DB: pacsdb
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
-    depends_on:
-      - ldap
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -41,8 +44,11 @@ services:
           cpus: '1'
           memory: 512M
   arc:
-    image: dcm4che/dcm4chee-arc-psql:5.30.0
-    container_name: arc
+    image: dcm4che/dcm4chee-arc-psql:5.31.2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -58,7 +64,7 @@ services:
       POSTGRES_DB: pacsdb
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
-      WILDFLY_DEPLOY_UI: "true"
+      WILDFLY_DEPLOY_UI: "false"
       WILDFLY_WAIT_FOR: ldap:389 db:5432
       WILDFLY_EXECUTER_MAX_THREADS: 200
       WILDFLY_CHOWN: /storage

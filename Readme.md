@@ -95,6 +95,8 @@ services:
       - pacs-network
 networks:
   pacs-network:
+    name: pacs-network
+    driver: bridge
 ```
 ### _Record creation_
 

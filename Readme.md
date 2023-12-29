@@ -130,8 +130,10 @@ weasis://$dicom:rs --url "http://sbmch.org.in:8080/dcm4chee-arc/aets/DCM4CHEE/rs
 3. DICOM WADO-RS Base URL: http://192.168.1.6:8080/dcm4chee-arc/aets/DCM4CHEE/rs
 4. DICOM WADO-URI: http://192.168.1.6:8080/dcm4chee-arc/aets/DCM4CHEE/wado
 5. IHE XDS-I Retrieve Imaging Document Set: http://192.168.1.6:8080/dcm4chee-arc/xdsi/ImagingDocumentSource
+```
 
-## _demo_
+## _demo case_
+
 ```bash
 weasis://$dicom:rs --url "https://demo.orthanc-server.com/dicom-web" -r "patientID=ozp00SjY2xG"
 ```

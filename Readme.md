@@ -4,10 +4,12 @@
 
 ```yml
 ---
+---
 version: "3"
 services:
   ldap:
     image: dcm4che/slapd-dcm4chee:2.6.5-31.2
+    container_name: ldap
     logging:
       driver: json-file
       options:
@@ -26,9 +28,12 @@ services:
           memory: 1024M
         reservations:
           cpus: '1'
-          memory: 512M   
+          memory: 512M    
+    networks:
+      - pacs-network
   db:
     image: dcm4che/postgres-dcm4chee:15.4-31
+    container_name: db
     logging:
       driver: json-file
       options:
@@ -48,9 +53,12 @@ services:
           memory: 1024M
         reservations:
           cpus: '1'
-          memory: 512M
+          memory: 512M    
+    networks:
+      - pacs-network
   arc:
     image: dcm4che/dcm4chee-arc-psql:5.31.2
+    container_name: arc
     logging:
       driver: json-file
       options:
@@ -71,6 +79,7 @@ services:
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
       WILDFLY_DEPLOY_UI: "false"
+      WILDFLY_PACSDS_USE_CCM: "false"
       WILDFLY_WAIT_FOR: ldap:389 db:5432
       WILDFLY_EXECUTER_MAX_THREADS: 200
       WILDFLY_CHOWN: /storage
@@ -83,6 +92,10 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
       - /var/local/dcm4chee-arc/storage:/storage
+    networks:
+      - pacs-network
+networks:
+  pacs-network:
 ```
 ### _Record creation_
 

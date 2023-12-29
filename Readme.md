@@ -1,111 +1,20 @@
 # dcm4che-weasis-integration
 
-## manual pacs connector deployment
-
-```yaml
----
-version: "3"
-services:
-  ldap:
-    image: dcm4che/slapd-dcm4chee:2.6.3-30.0
-    container_name: ldap
-    ports:
-      - "389:389"
-    volumes:
-      - /var/local/dcm4chee-arc/ldap:/var/lib/openldap/openldap-data
-      - /var/local/dcm4chee-arc/slapd.d:/etc/openldap/slapd.d
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 1024M
-        reservations:
-          cpus: '1'
-          memory: 512M
-  db:
-    image: dcm4che/postgres-dcm4chee:15.2-30
-    container_name: db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: pacsdb
-      POSTGRES_USER: pacs
-      POSTGRES_PASSWORD: pacs
-    depends_on:
-      - ldap
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - /var/local/dcm4chee-arc/db:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 1024M
-        reservations:
-          cpus: '1'
-          memory: 512M
-  arc:
-    image: dcm4che/dcm4chee-arc-psql:5.30.0
-    container_name: arc
-    ports:
-      - "8080:8080"
-      - "8443:8443"
-      - "9990:9990"
-      - "9993:9993"
-      - "11112:11112"
-      - "2762:2762"
-      - "2575:2575"
-      - "12575:12575"
-    environment:
-      WILDFLY_ADMIN_USER: admin
-      WILDFLY_ADMIN_PASSWORD: admin
-      POSTGRES_DB: pacsdb
-      POSTGRES_USER: pacs
-      POSTGRES_PASSWORD: pacs
-      WILDFLY_DEPLOY_UI: "true"
-      WILDFLY_WAIT_FOR: ldap:389 db:5432
-      WILDFLY_EXECUTER_MAX_THREADS: 200
-      WILDFLY_CHOWN: /storage
-      # JAVA_OPTS: -Xms512m -Xmx2g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16M  -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Duser.language=en -Duser.region=US -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=30000 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Djava.security.egd=file:/dev/urandom -Djava.rmi.server.hostname=192.168.1.6 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.host=0.0.0.0
-      JAVA_OPTS: -Xms512m -Xmx2g -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=16M -Djboss.tx.node.id=arc -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true -agentlib:jdwp=transport=dt_socket,address=*:8787,server=y,suspend=n
-    depends_on:
-      - ldap
-      - db
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
-      - /var/local/dcm4chee-arc/storage:/storage
-```
-
-## automatic deployment with weasis connector
-
-```Dockerfile
-FROM dcm4che/dcm4chee-arc-psql:5.30.0
-COPY weasis-pacs-connector.war /docker-entrypoint.d/deployments
-COPY weasis.war /docker-entrypoint.d/weasis.war
-```
-
-_Build command_
-
-```bash
-docker build -t jjino/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0
-docker push jjino/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0
-```
-
-
-_deployment_
+### _compose_
 
 ```yml
----
 version: "3"
 services:
   ldap:
-    image: dcm4che/slapd-dcm4chee:2.6.3-30.0
-    container_name: ldap
+    image: dcm4che/slapd-dcm4chee:2.6.5-31.2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
     ports:
       - "389:389"
+    environment:
+      STORAGE_DIR: /storage/fs1
     volumes:
       - /var/local/dcm4chee-arc/ldap:/var/lib/openldap/openldap-data
       - /var/local/dcm4chee-arc/slapd.d:/etc/openldap/slapd.d
@@ -116,18 +25,17 @@ services:
           memory: 1024M
         reservations:
           cpus: '1'
-          memory: 512M
+          memory: 512M   
   db:
-    image: dcm4che/postgres-dcm4chee:15.2-30
-    container_name: db
-    ports:
-      - "5432:5432"
+    image: dcm4che/postgres-dcm4chee:15.4-31
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
     environment:
       POSTGRES_DB: pacsdb
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
-    depends_on:
-      - ldap
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -141,8 +49,11 @@ services:
           cpus: '1'
           memory: 512M
   arc:
-    image: docker.io/library/dcm4chee-arc-psql-with-weasis-pacs-connector:5.30.0
-    container_name: arc
+    image: dcm4che/dcm4chee-arc-psql:5.31.2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -158,7 +69,7 @@ services:
       POSTGRES_DB: pacsdb
       POSTGRES_USER: pacs
       POSTGRES_PASSWORD: pacs
-      WILDFLY_DEPLOY_UI: "true"
+      WILDFLY_DEPLOY_UI: "false"
       WILDFLY_WAIT_FOR: ldap:389 db:5432
       WILDFLY_EXECUTER_MAX_THREADS: 200
       WILDFLY_CHOWN: /storage
@@ -171,24 +82,15 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
       - /var/local/dcm4chee-arc/storage:/storage
-````
-
-_Record creation_
+```
+### _Record creation_
 
 ```console
 docker run --rm --network=host dcm4che/dcm4che-tools:5.30.0 storescu -cDCM4CHEE@192.168.1.6:11112 /opt/dcm4che/etc/testdata/dicom
 ```
 
-_Console URLs_
 
-```console
-http://192.168.1.6:8080/dcm4chee-arc/ui2
-http://192.168.1.6:9990
-http://192.168.1.6:8080/weasis-pacs-connector/weasis?patientID=583295
-
-```
-
-_log details validation_
+### _log details validation_
 
 ```console
 tail -f /var/local/dcm4chee-arc/wildfly/log/server.log
@@ -205,7 +107,21 @@ tail -f /var/local/dcm4chee-arc/wildfly/log/server.log
 
 ```
 
-_Endpoint URLs_
+### _Console URLs_
+
+```console
+http://192.168.1.6:9990
+http://192.168.1.6:8080/weasis-pacs-connector/weasis?patientID=583295
+```
+
+### _weasis viewer_
+
+```console
+weasis://$dicom:rs --url "http://54.169.118.34:8080/dcm4chee-arc/aets/DCM4CHEE/rs" -r "patientID=583295" --query-ext "&includedefaults=false"
+weasis://$dicom:rs --url "http://sbmch.org.in:8080/dcm4chee-arc/aets/DCM4CHEE/rs" -r "studyUID=1.3.51.0.7.11194864995.55786.31298.42464.47635.50239.12053" --query-ext "&includedefaults=false"
+```
+
+### _Endpoint URLs_
 
 ```console
 1. DICOM QIDO-RS Base URL: http://192.168.1.6:8080/dcm4chee-arc/aets/DCM4CHEE/rs
@@ -213,16 +129,8 @@ _Endpoint URLs_
 3. DICOM WADO-RS Base URL: http://192.168.1.6:8080/dcm4chee-arc/aets/DCM4CHEE/rs
 4. DICOM WADO-URI: http://192.168.1.6:8080/dcm4chee-arc/aets/DCM4CHEE/wado
 5. IHE XDS-I Retrieve Imaging Document Set: http://192.168.1.6:8080/dcm4chee-arc/xdsi/ImagingDocumentSource
-```
 
-## Documentations
-
-1. [weasis docs](https://github.com/nroduit/weasis-pacs-connector#launch-weasis-with-other-parameters)
-2. [dcm4che docker preparation docs](https://github.com/dcm4che-dockerfiles/dcm4chee-arc-psql#deploy-additional-applications)
-3. [dcm4che-arc-light docs](https://github.com/dcm4che/dcm4chee-arc-light/wiki/Get-Started-Tutorials)
-
-
-
+## _demo_
 ```bash
 weasis://$dicom:rs --url "https://demo.orthanc-server.com/dicom-web" -r "patientID=ozp00SjY2xG"
 ```

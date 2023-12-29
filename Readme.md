@@ -3,6 +3,7 @@
 ### _compose_
 
 ```yml
+---
 version: "3"
 services:
   ldap:

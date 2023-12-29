@@ -221,3 +221,8 @@ _Endpoint URLs_
 2. [dcm4che docker preparation docs](https://github.com/dcm4che-dockerfiles/dcm4chee-arc-psql#deploy-additional-applications)
 3. [dcm4che-arc-light docs](https://github.com/dcm4che/dcm4chee-arc-light/wiki/Get-Started-Tutorials)
 
+
+
+```bash
+weasis://$dicom:rs --url "https://demo.orthanc-server.com/dicom-web" -r "patientID=ozp00SjY2xG"
+```

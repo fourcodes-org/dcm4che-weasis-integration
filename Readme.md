@@ -156,3 +156,4 @@ weasis://$dicom:rs --url "https://demo.orthanc-server.com/dicom-web" -r "patient
 ### Docs
 
 1. [dcm4chee-arc-light](https://github.com/dcm4che/dcm4chee-arc-light/wiki/Get-Started-Tutorials)
+2. [register-curl-as-oidc-client-in-keycloak](https://github.com/dcm4che/dcm4chee-arc-light/wiki/Get-OIDC-Access-Token-using-curl#register-curl-as-oidc-client-in-keycloak)

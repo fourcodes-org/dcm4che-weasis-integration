@@ -152,3 +152,7 @@ weasis://$dicom:rs --url "http://sbmch.org.in:8080/dcm4chee-arc/aets/DCM4CHEE/rs
 ```bash
 weasis://$dicom:rs --url "https://demo.orthanc-server.com/dicom-web" -r "patientID=ozp00SjY2xG"
 ```
+
+### Docs
+
+1. [dcm4chee-arc-light](https://github.com/dcm4che/dcm4chee-arc-light/wiki/Get-Started-Tutorials)

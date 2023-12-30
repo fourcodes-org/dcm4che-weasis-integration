@@ -1,0 +1,119 @@
+---
+version: "3"
+services:
+  ldap:
+    image: dcm4che/slapd-dcm4chee:2.6.5-31.2
+    container_name: ldap
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "389:389"
+    environment:
+      STORAGE_DIR: /storage/fs1
+    volumes:
+      - /var/local/dcm4chee-arc/ldap:/var/lib/openldap/openldap-data
+      - /var/local/dcm4chee-arc/slapd.d:/etc/openldap/slapd.d
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 512M    
+    networks:
+      - pacs-network
+  db:
+    image: dcm4che/postgres-dcm4chee:15.4-31
+    container_name: db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    environment:
+      POSTGRES_DB: pacsdb
+      POSTGRES_USER: pacs
+      POSTGRES_PASSWORD: pacs
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/local/dcm4chee-arc/db:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 512M    
+    networks:
+      - pacs-network
+  arc:
+    image: dcm4che/dcm4chee-arc-psql:5.31.2
+    container_name: arc
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "9990:9990"
+      - "9993:9993"
+      - "11112:11112"
+      - "2762:2762"
+      - "2575:2575"
+      - "12575:12575"
+    environment:
+      WILDFLY_ADMIN_USER: admin
+      WILDFLY_ADMIN_PASSWORD: admin
+      POSTGRES_DB: pacsdb
+      POSTGRES_USER: pacs
+      POSTGRES_PASSWORD: pacs
+      WILDFLY_DEPLOY_UI: "false"
+      WILDFLY_PACSDS_USE_CCM: "false"
+      WILDFLY_WAIT_FOR: ldap:389 db:5432
+      WILDFLY_EXECUTER_MAX_THREADS: 200
+      WILDFLY_CHOWN: /storage
+      HTTP_PROXY_ADDRESS_FORWARDING: "true"
+      WILDFLY_RESOLVE_PEER_ADDRESS: "false"
+      JAVA_OPTS: -Xms1g -Xmx4g -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=1g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1HeapRegionSize=32M -Djboss.tx.node.id=arc -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true -agentlib:jdwp=transport=dt_socket,address=*:8787,server=y,suspend=n
+    depends_on:
+      - ldap
+      - db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/local/dcm4chee-arc/wildfly:/opt/wildfly/standalone
+      - /var/local/dcm4chee-arc/storage:/storage
+    networks:
+      - pacs-network
+  proxy:
+    image: docker.io/library/ui
+    container_name: proxy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - "80:80"
+      - "443:443"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 512M
+    depends_on:
+      - arc
+    networks:
+      - pacs-network
+
+networks:
+  pacs-network:
+    name: pacs-network
+    driver: bridge
